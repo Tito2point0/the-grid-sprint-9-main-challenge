@@ -2,16 +2,18 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 const initialMessage = '(2,2)';
+const initialResponse = '';
 const initialEmail = '';
+const initialSteps = 0;
 const initialIndex = 4;
 
-const AppFunctional = () => {
+const AppFunction = ({ className }) => {
   const [state, setState] = useState({
     message: initialMessage,
     email: initialEmail,
     index: initialIndex,
-    steps: 0,
-    response: '',
+    steps: initialSteps,
+    response: initialResponse,
     x: 2,
     y: 2,
   });
@@ -29,15 +31,16 @@ const AppFunctional = () => {
   };
 
   const reset = () => {
-    setState({
+    setState(prevState => ({
+      ...prevState,
       message: '',
       email: '',
       index: initialIndex,
-      steps: 0,
-      response: '',
+      steps: initialSteps,
+      response: initialResponse,
       x: 2,
       y: 2,
-    });
+    }));
   };
 
   const getNextIndex = (direction) => {
@@ -63,43 +66,25 @@ const AppFunctional = () => {
 
   const move = (direction) => {
     const newIndex = getNextIndex(direction);
+    let response = '';
 
-    // Reset the response
-    setState(prevState => ({
-      ...prevState,
-      response: '',
-    }));
-
-    // Update the index and steps
     if (newIndex !== state.index) {
       setState(prevState => ({
         ...prevState,
         index: newIndex,
         steps: prevState.steps + 1,
-      }));
-    } else {
-      setState(prevState => ({
-        ...prevState,
-        index: newIndex,
+        response,
       }));
     }
 
-    // Call the API and update the response
-    axios.post('http://localhost:9000/api/result', state)
-      .then((res) => {
-        setState(prevState => ({
-          ...prevState,
-          response: res.data.message,
-          email: initialEmail,
-        }));
-      })
-      .catch((err) => {
-        setState(prevState => ({
-          ...prevState,
-          email: '',
-          response: err.response.data.message,
-        }));
-      });
+    if (newIndex === state.index) {
+      response = "You can't move in that direction";
+      setState(prevState => ({
+        ...prevState,
+        index: newIndex,
+        response,
+      }));
+    }
   };
 
   const onChange = (evt) => {
@@ -130,7 +115,7 @@ const AppFunctional = () => {
   };
 
   return (
-    <div id="wrapper">
+    <div id="wrapper" className={className}>
       <div className="info">
         <h3 id="coordinates">Coordinates {getXYMessage()}</h3>
         <h3 id="steps">You moved {state.steps} times</h3>
@@ -153,7 +138,7 @@ const AppFunctional = () => {
         <button id="up" onClick={() => move('up')}>UP</button>
         <button id="down" onClick={() => move('down')}>DOWN</button>
         <button id="right" onClick={() => move('right')}>RIGHT</button>
-        <button id="reset" onClick={() => reset()}>reset</button>
+        <button id="reset" onClick={reset}>reset</button>
       </div>
       <form onSubmit={onSubmit}>
         <input
@@ -173,4 +158,4 @@ const AppFunctional = () => {
   );
 };
 
-export default AppFunctional;
+export default AppFunction;
