@@ -61,29 +61,46 @@ export default class AppClass extends React.Component {
     return newIndex;
   };
 
-  move = (direction) => {
-    const newIndex = this.getNextIndex(direction);
-    let response = '';
+move = (direction) => {
+  const { index } = this.state;
+  const currentX = index % 3;
+  const currentY = Math.floor(index / 3);
+  let newX = currentX;
+  let newY = currentY;
+
+  if (direction === "left") {
+    newX = Math.max(currentX - 1, 0);
+  } else if (direction === "up") {
+    newY = Math.max(currentY - 1, 0);
+  } else if (direction === "right") {
+    newX = Math.min(currentX + 1, 2);
+  } else if (direction === "down") {
+    newY = Math.min(currentY + 1, 2);
+  }
+
+  const newIndex = newY * 3 + newX;
   
-    if (newIndex !== this.state.index) {
-      this.setState(prevState => ({
-        index: newIndex,
-        steps: prevState.steps + 1,
-        response,
-      }));
-    } else {
-      if (direction === "up") {
-        response = "You can't go up";
-      } else if (direction === "down") {
-        response = "You can't go down";
-      } else if (direction === "left") {
-        response = "You can't go left";
-      } else if (direction === "right") {
-        response = "You can't go right";
-      }
-      this.setState({ response });
+  if (newIndex !== index) {
+    this.setState(prevState => ({
+      index: newIndex,
+      steps: prevState.steps + 1,
+      response: '',
+    }));
+  } else {
+    let response = '';
+    if (direction === "up") {
+      response = "You can't go up";
+    } else if (direction === "down") {
+      response = "You can't go down";
+    } else if (direction === "left") {
+      response = "You can't go left";
+    } else if (direction === "right") {
+      response = "You can't go right";
     }
-  };
+    this.setState({ response });
+  }
+};
+
 
   onChange = (evt) => {
     const { id, value } = evt.target;
@@ -98,10 +115,14 @@ export default class AppClass extends React.Component {
         this.setState({ email: initialEmail });
       })
       .catch((err) => {
-        this.setState({ email: '', response: err.response.data.message });
+        if (err.response && err.response.data && err.response.data.message) {
+          this.setState({ email: '', response: err.response.data.message });
+        } else {
+          this.setState({ email: '', response: "An error occurred." });
+        }
       });
   };
-
+  
   render() {
     const { response } = this.state;
     const { className } = this.props;
@@ -144,7 +165,6 @@ export default class AppClass extends React.Component {
           <input
             id="submit"
             type="submit"
-            value="Submit"
           />
         </form>
       </div>
