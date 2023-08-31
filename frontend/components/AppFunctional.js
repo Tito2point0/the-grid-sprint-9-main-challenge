@@ -13,8 +13,6 @@ export default function AppFunction(props) {
     index: initialIndex,
     steps: initialSteps,
     response: '',
-    x: 2,
-    y: 2,
   });
 
   const getXY = () => {
@@ -93,7 +91,8 @@ export default function AppFunction(props) {
 
   const onSubmit = (evt) => {
     evt.preventDefault();
-    axios.post('http://localhost:9000/api/result', state)
+    const { x, y } = getXY()
+    axios.post('http://localhost:9000/api/result', {...state, x, y})
       .then((res) => {
         setState(prevState => ({
           ...prevState,
@@ -110,7 +109,7 @@ export default function AppFunction(props) {
     <div id="wrapper" className={props.className}>
       <div className="info">
         <h3 id="coordinates">Coordinates {getXYMessage()}</h3>
-        <h3 id="steps">You moved {state.steps} times</h3>
+        <h3 id="steps">You moved {state.steps} {state.steps !== 1 ? 'times' : 'time'}</h3>
       </div>
       <div id="grid">
         {Array.from({ length: 9 }).map((_, idx) => (

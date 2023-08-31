@@ -14,8 +14,6 @@ export default class AppClass extends React.Component {
     index: initialIndex,
     steps: initialSteps,
     response: initialResponse,
-    x: 2,
-    y: 2,
   };
 
   getXY = () => {
@@ -61,46 +59,29 @@ export default class AppClass extends React.Component {
     return newIndex;
   };
 
-move = (direction) => {
-  const { index } = this.state;
-  const currentX = index % 3;
-  const currentY = Math.floor(index / 3);
-  let newX = currentX;
-  let newY = currentY;
-
-  if (direction === "left") {
-    newX = Math.max(currentX - 1, 0);
-  } else if (direction === "up") {
-    newY = Math.max(currentY - 1, 0);
-  } else if (direction === "right") {
-    newX = Math.min(currentX + 1, 2);
-  } else if (direction === "down") {
-    newY = Math.min(currentY + 1, 2);
-  }
-
-  const newIndex = newY * 3 + newX;
-  
-  if (newIndex !== index) {
-    this.setState(prevState => ({
-      index: newIndex,
-      steps: prevState.steps + 1,
-      response: '',
-    }));
-  } else {
+  move = (direction) => {
+    const newIndex = this.getNextIndex(direction);
     let response = '';
-    if (direction === "up") {
-      response = "You can't go up";
-    } else if (direction === "down") {
-      response = "You can't go down";
-    } else if (direction === "left") {
-      response = "You can't go left";
-    } else if (direction === "right") {
-      response = "You can't go right";
+  
+    if (newIndex !== this.state.index) {
+      this.setState(prevState => ({
+        index: newIndex,
+        steps: prevState.steps + 1,
+        response,
+      }));
+    } else {
+      if (direction === "up") {
+        response = "You can't go up";
+      } else if (direction === "down") {
+        response = "You can't go down";
+      } else if (direction === "left") {
+        response = "You can't go left";
+      } else if (direction === "right") {
+        response = "You can't go right";
+      }
+      this.setState({ ...this.state, response });
     }
-    this.setState({ response });
-  }
-};
-
+  };
 
   onChange = (evt) => {
     const { id, value } = evt.target;
@@ -109,20 +90,16 @@ move = (direction) => {
 
   onSubmit = (evt) => {
     evt.preventDefault();
-    axios.post('http://localhost:9000/api/result', this.state)
+    const { x, y } = this.getXY()
+    axios.post('http://localhost:9000/api/result', { ...this.state, x, y } )
       .then((res) => {
-        this.setState({ response: res.data.message });
-        this.setState({ email: initialEmail });
+        this.setState({ ...this.state, email: initialEmail, response: res.data.message });
       })
       .catch((err) => {
-        if (err.response && err.response.data && err.response.data.message) {
-          this.setState({ email: '', response: err.response.data.message });
-        } else {
-          this.setState({ email: '', response: "An error occurred." });
-        }
+        this.setState({ email: '', response: err.response.data.message });
       });
   };
-  
+
   render() {
     const { response } = this.state;
     const { className } = this.props;
@@ -131,7 +108,7 @@ move = (direction) => {
       <div id="wrapper" className={className}>
         <div className="info">
           <h3 id="coordinates">Coordinates {this.getXYMessage()}</h3>
-          <h3 id="steps">You moved {this.state.steps} times</h3>
+          <h3 id="steps">You moved {this.state.steps} {this.state.steps !== 1 ? 'times' : 'time'}</h3>
         </div>
         <div id="grid">
           {Array.from({ length: 9 }).map((_, idx) => (
@@ -165,6 +142,7 @@ move = (direction) => {
           <input
             id="submit"
             type="submit"
+            value="Submit"
           />
         </form>
       </div>
