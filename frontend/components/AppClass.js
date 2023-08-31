@@ -1,4 +1,5 @@
 import React from 'react'
+import axios from 'axios'
 
 // Suggested initial states
 const initialMessage = ''
@@ -6,27 +7,19 @@ const initialEmail = ''
 const initialSteps = 0
 const initialIndex = 4 // the index the "B" is at
 
-// const initialState = {
-//   message: initialMessage,
-//   email: initialEmail,
-//   index: initialIndex,
-//   steps: initialSteps,
-// }
+const initialState = {
+  message: initialMessage,
+  email: initialEmail,
+  index: initialIndex,
+  steps: initialSteps,
+}
 
 export default class AppClass extends React.Component {
   // THE FOLLOWING HELPERS ARE JUST RECOMMENDATIONS.
   // You can delete them and build your own logic from scratch.
-  constructor() {
-    super()
-    this.state = {
-      
-      message: initialMessage,
-      email: initialEmail,
-      index: initialIndex,
-      steps: initialSteps
-      
-    }
-  }
+  
+    state = initialState
+  
   
   getXY = () => {
     const { index } = this.state;
@@ -92,11 +85,10 @@ export default class AppClass extends React.Component {
     // This event handler can use the helper above to obtain a new index for the "B",
     // and change any states accordingly.
     move = (direction) => {
-      const newIndex = this.getNextIndex(direction); // Get the new index based on the direction
-      this.setState({
-        index: newIndex,
-        steps: this.state.steps + 1,
-      });
+      this.setState(prevState => ({
+        index: this.getNextIndex(direction),
+        steps: prevState.steps + 1,
+      }));
     };
     
   
@@ -110,19 +102,40 @@ export default class AppClass extends React.Component {
 
   onSubmit = (evt) => {
     // Use a POST request to send a payload to the server.
+    evt.preventDefault();
+    const { email, message, index, steps } = this.state;
+
+    axios.post("http://localhost:9000/api/result", { message, email, index, steps })
+      .then(({ data }) => {
+        this.setState({
+          message: data.message,
+          email: data.newEmail,
+          index: 1 ,
+          steps: 0
+        })
+        console.log(index, steps)
+    })
+      .catch(err => {
+        console.error("you messed something up again ", err);
+        })
+.finally(() => {
+  this.setState({
+    message: '',
+    email: '',
+})
+})
   }
 
   render()
 
   {
-    console.log(this.getXY)
-    console.log(this.state)
+   console.log(this.getXYMessage())
     const { className } = this.props
     return (
       <div id="wrapper" className={className}>
         <div className="info">
         <h3 id="coordinates">Coordinates {this.getXYMessage()}</h3>
-        <h3 id="steps">You moved 0 times</h3>
+        <h3 id="steps">You moved {this.state.steps} times</h3>
         </div>
         <div id="grid">
           {
@@ -143,14 +156,19 @@ export default class AppClass extends React.Component {
           <button id="down" onClick={() => this.move('down')}>DOWN</button>
           <button id="reset" onClick={() => this.reset()}>reset</button>
         </div>
-        <form>
+        <form onSubmit={this.onSubmit}>
           <input id="email"
             type="email"
-            placeholder="type email">
+            placeholder="type email"
+            value={this.state.email}
+            onChange={this.onChange}
+          >
            </input>
           <input
             id="submit"
-            type="submit">
+            type="submit"
+            value='Submit'
+          >
           </input>
         </form>
       </div>
