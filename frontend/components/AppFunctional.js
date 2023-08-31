@@ -2,18 +2,17 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 const initialMessage = '(2,2)';
-const initialResponse = '';
 const initialEmail = '';
 const initialSteps = 0;
 const initialIndex = 4;
 
-const AppFunction = ({ className }) => {
+export default function AppFunction(props) {
   const [state, setState] = useState({
     message: initialMessage,
     email: initialEmail,
     index: initialIndex,
     steps: initialSteps,
-    response: initialResponse,
+    response: '',
     x: 2,
     y: 2,
   });
@@ -31,16 +30,14 @@ const AppFunction = ({ className }) => {
   };
 
   const reset = () => {
-    setState(prevState => ({
-      ...prevState,
+    setState({
+      ...state,
       message: '',
       email: '',
       index: initialIndex,
       steps: initialSteps,
-      response: initialResponse,
-      x: 2,
-      y: 2,
-    }));
+      response: '',
+    });
   };
 
   const getNextIndex = (direction) => {
@@ -66,33 +63,32 @@ const AppFunction = ({ className }) => {
 
   const move = (direction) => {
     const newIndex = getNextIndex(direction);
-    let response = '';
 
     if (newIndex !== state.index) {
       setState(prevState => ({
         ...prevState,
         index: newIndex,
         steps: prevState.steps + 1,
-        response,
+        response: '',
       }));
-    }
-
-    if (newIndex === state.index) {
-      response = "You can't move in that direction";
-      setState(prevState => ({
-        ...prevState,
-        index: newIndex,
-        response,
-      }));
+    } else {
+      let response = '';
+      if (direction === "up") {
+        response = "You can't go up";
+      } else if (direction === "down") {
+        response = "You can't go down";
+      } else if (direction === "left") {
+        response = "You can't go left";
+      } else if (direction === "right") {
+        response = "You can't go right";
+      }
+      setState({ ...state, response });
     }
   };
 
   const onChange = (evt) => {
     const { id, value } = evt.target;
-    setState(prevState => ({
-      ...prevState,
-      [id]: value,
-    }));
+    setState({ ...state, [id]: value });
   };
 
   const onSubmit = (evt) => {
@@ -106,16 +102,12 @@ const AppFunction = ({ className }) => {
         }));
       })
       .catch((err) => {
-        setState(prevState => ({
-          ...prevState,
-          email: '',
-          response: err.response.data.message,
-        }));
+        setState({ ...state, email: '', response: err.response.data.message });
       });
   };
 
   return (
-    <div id="wrapper" className={className}>
+    <div id="wrapper" className={props.className}>
       <div className="info">
         <h3 id="coordinates">Coordinates {getXYMessage()}</h3>
         <h3 id="steps">You moved {state.steps} times</h3>
@@ -138,7 +130,7 @@ const AppFunction = ({ className }) => {
         <button id="up" onClick={() => move('up')}>UP</button>
         <button id="down" onClick={() => move('down')}>DOWN</button>
         <button id="right" onClick={() => move('right')}>RIGHT</button>
-        <button id="reset" onClick={reset}>reset</button>
+        <button id="reset" onClick={() => reset()}>reset</button>
       </div>
       <form onSubmit={onSubmit}>
         <input
@@ -156,6 +148,4 @@ const AppFunction = ({ className }) => {
       </form>
     </div>
   );
-};
-
-export default AppFunction;
+}

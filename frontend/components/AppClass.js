@@ -84,7 +84,6 @@ export default class AppClass extends React.Component {
       this.setState({ response });
     }
   };
-  
 
   onChange = (evt) => {
     const { id, value } = evt.target;
