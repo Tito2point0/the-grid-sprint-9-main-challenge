@@ -65,15 +65,22 @@ export default class AppClass extends React.Component {
     const newIndex = this.getNextIndex(direction);
     let response = '';
 
-    if (newIndex === this.state.index) {
-      response = "You can't move in that direction";
+    if (newIndex !== this.state.index) {
+      this.setState(prevState => ({
+        index: newIndex,
+        steps: prevState.steps + 1,
+        response,
+      }));
     }
 
-    this.setState(prevState => ({
-      index: newIndex,
-      steps: prevState.steps + 1,
-      response,
-    }));
+    if (newIndex === this.state.index) {
+      response = "You can't move in that direction";
+      this.setState({...this.state,
+        index: newIndex,
+        response,
+      });
+    }
+
   };
 
   onChange = (evt) => {
@@ -107,9 +114,9 @@ export default class AppClass extends React.Component {
           {Array.from({ length: 9 }).map((_, idx) => (
             <div
               key={idx}
-              className={`square${idx === 4 ? ' active' : ''}`}
+              className={`square${idx === this.state.index ? ' active' : ''}`}
             >
-              {idx === 4 ? 'B' : null}
+              {idx === this.state.index ? 'B' : null}
             </div>
           ))}
         </div>
