@@ -64,24 +64,27 @@ export default class AppClass extends React.Component {
   move = (direction) => {
     const newIndex = this.getNextIndex(direction);
     let response = '';
-
+  
     if (newIndex !== this.state.index) {
       this.setState(prevState => ({
         index: newIndex,
         steps: prevState.steps + 1,
         response,
       }));
+    } else {
+      if (direction === "up") {
+        response = "You can't go up";
+      } else if (direction === "down") {
+        response = "You can't go down";
+      } else if (direction === "left") {
+        response = "You can't go left";
+      } else if (direction === "right") {
+        response = "You can't go right";
+      }
+      this.setState({ response });
     }
-
-    if (newIndex === this.state.index) {
-      response = "You can't move in that direction";
-      this.setState({...this.state,
-        index: newIndex,
-        response,
-      });
-    }
-
   };
+  
 
   onChange = (evt) => {
     const { id, value } = evt.target;
