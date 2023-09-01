@@ -4,6 +4,9 @@ import '@testing-library/jest-dom/extend-expect';
 import AppClass from './AppClass'; //
 import AppFunctional from './AppFunctional';
 
+test('sanity', () => {
+  expect(true).toBe(true)
+})
 
 test('renders coordinates and steps', async () => {
   render(<AppClass />);
@@ -77,3 +80,13 @@ test('App Class Renders', () => {
     expect(movement).toBeTruthy()
   })
 
+  test('email input field is present', () => {
+    render(<AppClass />);
+    
+    // Find the email input by placeholder text
+    const emailInput = screen.getByPlaceholderText('type email');
+    
+    // Check if the email input field is present
+    expect(emailInput).toBeInTheDocument();
+  });
+  
