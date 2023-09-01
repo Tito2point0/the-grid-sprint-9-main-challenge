@@ -42,3 +42,4 @@ test('displays error message for missing email on submit', async () => {
     const errorMessage = await screen.findByText(/Ouch: email is required/i);
     expect(errorMessage).toBeInTheDocument();
 });
+
