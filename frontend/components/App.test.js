@@ -4,9 +4,6 @@ import '@testing-library/jest-dom/extend-expect';
 import AppClass from './AppClass'; //
 import AppFunctional from './AppFunctional';
 
-test('sanity', () => {
-  expect(true).toBe(true)
-})
 
 test('renders coordinates and steps', async () => {
   render(<AppClass />);
