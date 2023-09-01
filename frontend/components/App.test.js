@@ -43,3 +43,14 @@ test('displays error message for missing email on submit', async () => {
     expect(errorMessage).toBeInTheDocument();
 });
 
+test('reset button clears messages', async () => {
+    render(<AppClass />);
+    
+    // Find the reset button and click it
+    const resetButton = screen.getByText('reset');
+    fireEvent.click(resetButton);
+    
+    // Check that the response message is no longer in the document
+    const responseElement = screen.queryByText(/You can't go/);
+    expect(responseElement).not.toBeInTheDocument();
+  });
